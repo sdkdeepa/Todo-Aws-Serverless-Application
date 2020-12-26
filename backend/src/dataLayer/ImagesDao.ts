@@ -11,7 +11,7 @@ const s3 = new XAWS.S3({
 
 export class ImagesDao {
     constructor(
-        private readonly bucketName = process.env.TODOS_IMAGES_BUCKET,
+        private readonly bucketName = process.env.S3_BUCKET_NAME,
         private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ) { }
 
