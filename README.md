@@ -1,1 +1,3 @@
-# Project5-Serverless-Application
+# Udacity-Serverless-Application
+
+Project 5
