@@ -32,7 +32,7 @@ You also need to add any necessary resources to the `resources` section of the `
   - DELETE - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
   - POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}/attachment
   
- # Lambda Functions:
+ # Lambda Functions
   - Auth: udacity-p5-serverless-application-dev-Auth
   - GetTodos: udacity-p5-serverless-application-dev-GetTodos
   - CreateTodo: udacity-p5-serverless-application-dev-CreateTodo
