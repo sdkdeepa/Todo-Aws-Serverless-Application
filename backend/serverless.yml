@@ -16,10 +16,15 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-2'}
 
+  tracing: #  X-Ray Tracing
+    lambda: true
+    apiGateway: true
+
   environment:
     PROJECT_NAME: udacity-p5
     TODOS_TABLE: udacity-p5-serverless-application-todo-${self:provider.stage}
     S3_BUCKET_NAME: udacity-p5-serverless-application-todo-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 300
 
 custom:
   documentation:
@@ -31,29 +36,11 @@ custom:
     models:
       - name: CreateTodoRequest
         contentType: "application/json"
-        schema:
-          required:
-            - name
-            - dueDate
-          properties:
-            name:
-              type: string
-            dueDate:
-              type: string
+        schema: ${file(src/schema/create-request.json)}
       - name: UpdateTodoRequest
         contentType: "application/json"
-        schema:
-          required:
-            - name
-            - dueDate
-            - done
-          properties:
-            name:
-              type: string
-            dueDate:
-              type: string
-            done:
-              type: boolean
+        schema: ${file(src/schema/update-request.json)}
+          
 
 functions:
 
@@ -74,7 +61,13 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
+          - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'
 
   # TODO: Configure this function
   CreateTodo:
@@ -97,7 +90,11 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'
 
   # TODO: Configure this function
   UpdateTodo:
@@ -120,6 +117,11 @@ functions:
         Action:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'
 
   # TODO: Configure this function
   DeleteTodo:
@@ -136,6 +138,11 @@ functions:
         Action:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'
 
   # TODO: Configure this function
   GenerateUploadUrl:
@@ -150,8 +157,14 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - s3:*
+          - s3:PutObject
+          - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'
 
 resources:
   Resources:
@@ -179,6 +192,38 @@ resources:
           Ref: ApiGatewayRestApi
         ValidateRequestBody: true
         ValidateRequestParameters: false
+
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
+
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+    GatewayResponseDefault5XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,DELETE,PATCH,PUT'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: ApiGatewayRestApi 
+    
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -190,5 +235,9 @@ resources:
               AllowedHeaders:
                 - '*'
               AllowedMethods:
+                - GET
                 - PUT
-              MaxAge: 300
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
