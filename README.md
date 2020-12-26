@@ -43,6 +43,14 @@ You also need to add any necessary resources to the `resources` section of the `
 # Serverless 
   
   ![Alt text](images/Serverless-Dashboard.png?raw=true "Serverless-Dashboard")
+  
+# Auth0
+  
+  ![Alt text](images/Auth0.png?raw=true "Auth0")
+  
+# AWS Cloud Formation 
+  
+   ![Alt text](images/AWSCloudFormation.png?raw=true "AWS cloud formation")
 
 # Frontend
 
