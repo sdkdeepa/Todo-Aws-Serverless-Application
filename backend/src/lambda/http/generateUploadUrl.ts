@@ -1,43 +1,41 @@
 import 'source-map-support/register'
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda'
-import { getSignedUrl, updateAttachmentUrl} from "../../businessLogic/ToDo"
-import * as middy from 'middy'
-import { createLogger } from '../../utils/logger'
+import { APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda'
+import { createLogger } from '../../utils/logger';
+import { getUploadUrl} from '../../businessLogic/ToDo';
+import * as middy from 'middy';
 import { getUserId } from '../utils'
 
-const logger = createLogger('generate-upload-url-todo')
 
-export const handler = middy(
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const logger = createLogger('generateUploadUrl')
 
-    // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
-    console.log("Processing Event ", event);
-    const todoId = event.pathParameters.todoId
+export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+
+  logger.debug("Processing generateUploadUrl event", {event})
+
+  const todoId = event.pathParameters.todoId
 
   // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
   if (!todoId) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'todoId parameter is required' })
+      body: JSON.stringify({ error: 'todoId parameter is missing' })
     }
   }
-
   const userId = getUserId(event)
   logger.info("Getting signed URL for todo", {todoId, userId})
 
-  const signedUrl: string = await getSignedUrl(todoId)
+  const signedUrl:string  = await getUploadUrl(todoId,userId)
   logger.info("Got signed URL for todo", {signedUrl})
 
-  await updateAttachmentUrl(signedUrl, todoId, userId)
-
+  // Return presigned url to client
   return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },    
+    statusCode: 201,
     body: JSON.stringify({
-      uploadUrl: signedUrl
-    })
-  }
+       uploadUrl: signedUrl
+    }),
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+       'Access-Control-Allow-Credentials': true
+    }
+  } 
 })
-

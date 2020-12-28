@@ -10,20 +10,13 @@ const logger = createLogger('todo-business')
 const todoDao = new TodosDao()
 const imagesDao = new ImagesDao()
 
-/**
- * Get all the TODOs of a user
- * @param userId owner of the todos
- * @returns all the TODOs of the corresponding user
- */
+//Get all the TODO items for the user
+
 export async function getTodos(userId: string): Promise<TodoItem[]> {
     return await todoDao.getTodos(userId)
 }
 
-/**
- * Create a TODO
- * @param newTodoRequest properties for this new TODO
- * @param userId id of the todo's owner
- */
+//Create a TODO
 export async function createTodo(newTodoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
     const todoId = uuid.v4()
     logger.info('Create TODO with generated uuid', { todoId })
@@ -40,22 +33,33 @@ export async function createTodo(newTodoRequest: CreateTodoRequest, userId: stri
     return await todoDao.createTodo(newTodoItem)
 }
 
-// Remove a TODO by its id
+// Remove an item from TODO by id
  
 export async function deleteTodo(todoId: string, userId: string) {
     return await todoDao.deleteTodo(todoId, userId)
 }
 
-// Update a TODO by its id
+// Update an item from TODO by id
  
 export async function updateTodo(todoId: string, userId: string, updatedProperties: UpdateTodoRequest) {
     return await todoDao.updateTodo(todoId, userId, updatedProperties)
 }
 
 //Get a generated signed url to put an image
-export async function getSignedUrl(todoId: string): Promise<string> {
-    return await imagesDao.getSignedUrl(todoId)
-}
+// export async function getSignedUrl(todoId: string, userId: string ): Promise<string> {
+//     return await imagesDao.getSignedUrl(todoId, userId)
+// }
+
+  export async function getUploadUrl(userId: string, todoId: string): Promise<string> {
+
+    logger.info('Entering Business Logic function');
+
+    // Write final url to datastore
+    await todoDao.updateAttachmentUrl(userId, todoId, imagesDao.getBucketName)
+
+
+    return await imagesDao.getUploadUrl(todoId)
+  }
 
 //Update a todo with an attachmentUrl (image)
  

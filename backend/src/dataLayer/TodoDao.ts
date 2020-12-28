@@ -5,11 +5,15 @@ import { createLogger } from '../utils/logger'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 
 const logger = createLogger('todos-dao')
+const AWSXRay = require('aws-xray-sdk');
+const XAWS = AWSXRay.captureAWS(AWS)
+
+
 
 
 export class TodosDao {
     constructor(
-        private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
+        private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly createdAtIndex = process.env.TODOS_INDEX_CREATED_AT
     ) { }
