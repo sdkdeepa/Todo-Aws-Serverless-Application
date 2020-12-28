@@ -45,11 +45,6 @@ export async function updateTodo(todoId: string, userId: string, updatedProperti
     return await todoDao.updateTodo(todoId, userId, updatedProperties)
 }
 
-//Get a generated signed url to put an image
-// export async function getSignedUrl(todoId: string, userId: string ): Promise<string> {
-//     return await imagesDao.getSignedUrl(todoId, userId)
-// }
-
   export async function getUploadUrl(userId: string, todoId: string): Promise<string> {
 
     logger.info('Entering Business Logic function');
