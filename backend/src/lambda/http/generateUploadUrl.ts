@@ -13,6 +13,10 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
   logger.debug("Processing generateUploadUrl event", {event})
 
   const todoId = event.pathParameters.todoId
+  console.log("Processing Event ", event);
+    const authorization = event.headers.Authorization;
+    const split = authorization.split(' ');
+    const jwtToken = split[1];
 
   // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
   if (!todoId) {
@@ -24,7 +28,7 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
   const userId = getUserId(event)
   logger.info("Getting signed URL for todo", {todoId, userId})
 
-  const signedUrl:string  = await getUploadUrl(todoId,userId)
+  const signedUrl:string  = await getUploadUrl(todoId,jwtToken)
   logger.info("Got signed URL for todo", {signedUrl})
 
   // Return presigned url to client

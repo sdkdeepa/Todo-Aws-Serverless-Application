@@ -48,12 +48,11 @@ export async function updateTodo(todoId: string, userId: string, updatedProperti
   export async function getUploadUrl(userId: string, todoId: string): Promise<string> {
 
     logger.info('Entering Business Logic function');
-
+    let url = await imagesDao.getUploadUrl(todoId)
     // Write final url to datastore
-    await todoDao.updateAttachmentUrl(userId, todoId, imagesDao.getBucketName)
+    await todoDao.updateAttachmentUrl( url, todoId, userId)
+   return url
 
-
-    return await imagesDao.getUploadUrl(todoId)
   }
 
 //Update a todo with an attachmentUrl (image)
