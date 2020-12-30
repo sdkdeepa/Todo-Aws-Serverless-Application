@@ -25,11 +25,11 @@ You also need to add any necessary resources to the `resources` section of the `
 
 # Endpoints
    
-  GET - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos
-  POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos
-  PATCH - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
-  DELETE - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
-  POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}/attachment
+  - GET - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos
+  - POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos
+  - PATCH - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
+  - DELETE - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
+  - POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}/attachment
 
   
 # Lambda Functions
