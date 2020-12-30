@@ -44,7 +44,7 @@ You also need to add any necessary resources to the `resources` section of the `
   
   ![Alt text](images/Serverless-Dashboard.png?raw=true "Serverless-Dashboard")
   
-  ![Alt text] (images/images/ServerlessDeployment.png?raw=true "ServerlessDeployment")
+  ![Alt text] (images/ServerlessDeployment.png?raw=true "ServerlessDeployment")
   
 # Auth0
   
@@ -56,9 +56,9 @@ You also need to add any necessary resources to the `resources` section of the `
    
 # AWS XRAY Traces and Service Map
   
-   ![Alt text] (images/AWS-Xray-Traces.png?raw=true "AWS-Xray-Traces")
+   ![Alt text](images/AWS-Xray-Traces.png?raw=true "AWS-Xray-Traces")
 
-   ![Alt text] (images/XRAY-Servicemap.png?raw=true "XRAY-Servicemap")
+   ![Alt text](images/XRAY-Servicemap.png?raw=true "XRAY-Servicemap")
 
 # Frontend
 
