@@ -12,7 +12,6 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
-
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-2'}
   
@@ -25,22 +24,40 @@ provider:
     PROJECT_NAME: udacity-p5
     TODOS_TABLE: udacity-p5-serverless-application-todo-${self:provider.stage}
     S3_BUCKET_NAME: udacity-p5-serverless-application-todo-${self:provider.stage}
-    SIGNED_URL_EXPIRATION: 300
 
 custom:
   documentation:
     api:
       info:
         version: '1.0.0'
-        title: udacity-p5-serverless-application-todo-api
-        description: udacity-p5-serverless-application-todo-api
+        title: serverless-application-todo-api
+        description: serverless-application-todo-api
     models:
       - name: CreateTodoRequest
         contentType: "application/json"
-        schema: ${file(src/schema/create-request.json)}
+        schema:
+          required:
+            - name
+            - dueDate
+          properties:
+            name:
+              type: string
+            dueDate:
+              type: string
       - name: UpdateTodoRequest
         contentType: "application/json"
-        schema: ${file(src/schema/update-request.json)}
+        schema:
+          required:
+            - name
+            - dueDate
+            - done
+          properties:
+            name:
+              type: string
+            dueDate:
+              type: string
+            done:
+              type: boolean
           
 
 functions:
@@ -62,7 +79,6 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-          - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
       - Effect: Allow
         Action:
@@ -124,7 +140,7 @@ functions:
         Resource: 
           - '*'
 
-  # TODO: Configure this function
+  # DELETE: Configure this function
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
@@ -145,7 +161,7 @@ functions:
         Resource: 
           - '*'
 
-  # TODO: Configure this function
+  # POST: Configure this function
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
@@ -158,15 +174,9 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - s3:PutObject
-          - s3:GetObject
-          - '*'
+          - s3:*
+          - xray:PutTraceSegments 
         Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*
-      - Effect: Allow
-        Action:
-          - xray:PutTraceSegments
-        Resource: 
-          - '*'
 
 resources:
   Resources:
@@ -194,6 +204,23 @@ resources:
           Ref: ApiGatewayRestApi
         ValidateRequestBody: true
         ValidateRequestParameters: false
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET_NAME}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 300
 
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
@@ -225,35 +252,17 @@ resources:
         ResponseType: DEFAULT_5XX
         RestApiId:
           Ref: ApiGatewayRestApi 
-    
-    AttachmentsBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:provider.environment.S3_BUCKET_NAME}
-        CorsConfiguration:
-          CorsRules:
-            - AllowedOrigins:
-                - '*'
-              AllowedHeaders:
-                - '*'
-              AllowedMethods:
-                - GET
-                - PUT
-                - POST
-                - DELETE
-                - HEAD
-              MaxAge: 3000
 
-    # BucketPolicy:
-    #   Type: AWS::S3::BucketPolicy
-    #   Properties:
-    #     PolicyDocument:
-    #       Id: MyPolicy
-    #       Version: '2012-10-17'
-    #       Statement:
-    #         - Sid: PublicReadForGetBucketObjects
-    #           Effect: Allow
-    #           Principal: '*'
-    #           Action: 's3:GetObject'
-    #           Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*'
-    #     Bucket: !Ref AttachmentsBucket
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: '2012-10-17'
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*'
+        Bucket: !Ref AttachmentsBucket

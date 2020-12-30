@@ -1,65 +1,39 @@
-import { TodoItem } from '../models/TodoItem'
-import { TodosDao } from '../dataLayer/TodoDao'
-import { ImagesDao } from '../dataLayer/ImagesDao'
-import { createLogger } from '../utils/logger'
-import { CreateTodoRequest } from '../requests/CreateTodoRequest'
-import * as uuid from 'uuid'
-import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+import {TodoItem} from "../models/TodoItem";
+import {parseUserId} from "../auth/utils";
+import {CreateTodoRequest} from "../requests/CreateTodoRequest";
+import {UpdateTodoRequest} from "../requests/UpdateTodoRequest";
+import {TodoUpdate} from "../models/TodoUpdate";
+import {ToDoAccess} from "../dataLayer/ToDoAccess";
 
-const logger = createLogger('todo-business')
-const todoDao = new TodosDao()
-const imagesDao = new ImagesDao()
+const uuidv4 = require('uuid/v4');
+const toDoAccess = new ToDoAccess();
 
-//Get all the TODO items for the user
-
-export async function getTodos(userId: string): Promise<TodoItem[]> {
-    return await todoDao.getTodos(userId)
+export async function getAllToDo(jwtToken: string): Promise<TodoItem[]> {
+    const userId = parseUserId(jwtToken);
+    return toDoAccess.getAllToDo(userId);
 }
 
-//Create a TODO
-export async function createTodo(newTodoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
-    const todoId = uuid.v4()
-    logger.info('Create TODO with generated uuid', { todoId })
-
-    const newTodoItem: TodoItem = {
-        userId,
-        todoId,
-        createdAt: new Date().toISOString(),
-        ...newTodoRequest,
-        done: false
-    }
-
-
-    return await todoDao.createTodo(newTodoItem)
+export function createToDo(createTodoRequest: CreateTodoRequest, jwtToken: string): Promise<TodoItem> {
+    const userId = parseUserId(jwtToken);
+    return toDoAccess.createToDo({
+        userId: userId,
+        todoId: uuidv4(),
+        createdAt: new Date().getTime().toString(),
+        done: false,
+        ...createTodoRequest,
+    });
 }
 
-// Remove an item from TODO by id
- 
-export async function deleteTodo(todoId: string, userId: string) {
-    return await todoDao.deleteTodo(todoId, userId)
+export function updateToDo(updateTodoRequest: UpdateTodoRequest, todoId: string, jwtToken: string): Promise<TodoUpdate> {
+    const userId = parseUserId(jwtToken);
+    return toDoAccess.updateToDo(updateTodoRequest, todoId, userId);
 }
 
-// Update an item from TODO by id
- 
-export async function updateTodo(todoId: string, userId: string, updatedProperties: UpdateTodoRequest) {
-    return await todoDao.updateTodo(todoId, userId, updatedProperties)
+export function deleteToDo(todoId: string, jwtToken: string): Promise<string> {
+    const userId = parseUserId(jwtToken);
+    return toDoAccess.deleteToDo(todoId, userId);
 }
 
-  export async function getUploadUrl(userId: string, todoId: string): Promise<string> {
-
-    logger.info('Entering Business Logic function');
-    let url = await imagesDao.getUploadUrl(todoId)
-    // Write final url to datastore
-    await todoDao.updateAttachmentUrl( url, todoId, userId)
-   return url
-
-  }
-
-//Update a todo with an attachmentUrl (image)
- 
-export async function updateAttachmentUrl(signedUrl: string, todoId: string, userId: string) {
-    
-    const attachmentUrl: string = signedUrl.split("?")[0]
-    logger.info("Found the attachment url from signed url", {attachmentUrl})
-    return await todoDao.updateAttachmentUrl(attachmentUrl, todoId, userId)
+export function generateUploadUrl(todoId: string): Promise<string> {
+    return toDoAccess.generateUploadUrl(todoId);
 }
