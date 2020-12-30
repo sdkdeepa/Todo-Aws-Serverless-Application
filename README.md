@@ -24,12 +24,13 @@ An id of a user can be extracted from a JWT token passed by a client
 You also need to add any necessary resources to the `resources` section of the `serverless.yml` file such as DynamoDB table and and S3 bucket.
 
 # Endpoints
+   
+  GET - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos
+  POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos
+  PATCH - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
+  DELETE - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
+  POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}/attachment
 
-  - GET - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos
-  - POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos
-  - PATCH - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
-  - DELETE - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}
-  - POST - https://st08c727a6.execute-api.us-east-2.amazonaws.com/dev/todos/{todoId}/attachment
   
 # Lambda Functions
 
@@ -38,11 +39,12 @@ You also need to add any necessary resources to the `resources` section of the `
   - CreateTodo: udacity-p5-serverless-application-dev-CreateTodo
   - UpdateTodo: udacity-p5-serverless-application-dev-UpdateTodo
   - DeleteTodo: udacity-p5-serverless-application-dev-DeleteTodo
-  - GenerateUploadUrl: udacity-p5-serverless-application-dev-GenerateUploadUrl
   
 # Serverless 
   
   ![Alt text](images/Serverless-Dashboard.png?raw=true "Serverless-Dashboard")
+  
+  ![Alt text] (images/images/ServerlessDeployment.png?raw=true "ServerlessDeployment")
   
 # Auth0
   
@@ -51,6 +53,12 @@ You also need to add any necessary resources to the `resources` section of the `
 # AWS Cloud Formation 
   
    ![Alt text](images/AWSCloudFromation.png?raw=true "AWSCloudFromation")
+   
+# AWS XRAY Traces and Service Map
+  
+   ![Alt text] (images/AWS-Xray-Traces.png?raw=true "AWS-Xray-Traces")
+
+   ![Alt text] (images/XRAY-Servicemap.png?raw=true "XRAY-Servicemap")
 
 # Frontend
 
