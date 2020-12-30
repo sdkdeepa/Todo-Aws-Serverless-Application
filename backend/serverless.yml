@@ -41,6 +41,7 @@ custom:
             - dueDate
           properties:
             name:
+              minLength: 1
               type: string
             dueDate:
               type: string
@@ -53,6 +54,7 @@ custom:
             - done
           properties:
             name:
+              minLength: 1
               type: string
             dueDate:
               type: string
@@ -87,6 +89,7 @@ functions:
           - '*'
 
   # TODO: Configure this function
+ 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
@@ -100,7 +103,7 @@ functions:
             description: "Create a new todo item"
             requestModels:
               "application/json": CreateTodoRequest
-          reqValidatorName: onlyBody
+          reqValidatorName: RequestBodyValidator
     iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-create-todo-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
@@ -127,7 +130,7 @@ functions:
             description: "Update a todo item"
             requestModels:
               "application/json": UpdateTodoRequest
-          reqValidatorName: onlyBody
+          reqValidatorName: RequestBodyValidator
     iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-update-todo-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
